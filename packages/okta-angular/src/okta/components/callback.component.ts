@@ -32,7 +32,8 @@ export class OktaCallbackComponent implements OnInit {
          * Navigate back to the saved uri, or root of application.
          */
         const fromUri = this.okta.getFromUri();
-        window.location.replace(fromUri);
+        const base = (document.querySelector('base') || {}).href;
+        window.location.replace((base ? base + '/' : '') + fromUri);
       })
       .catch(e => {
         this.error = e.toString();

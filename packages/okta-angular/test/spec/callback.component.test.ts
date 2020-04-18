@@ -70,6 +70,29 @@ describe('OktaCallbackComponent', () => {
     expect(window.location.replace).toHaveBeenCalledWith(uri);
   }));
 
+  it('should call location.replace with the saved uri and base href', async(() => {
+    const uri = 'fake/resource';
+    const baseHref = 'http://localhost/fake-base-href/';
+    const baseElement = document.createElement('base') as HTMLBaseElement;
+    baseElement.setAttribute('href', baseHref);
+    const fakePromise: unknown = {
+      then: function(cb: Function) {
+        cb();
+        return {
+          catch: jest.fn()
+        };
+      }
+    };
+    jest.spyOn(service, 'handleAuthentication').mockReturnValue(fakePromise as Promise<void>);
+    jest.spyOn(service, 'getFromUri').mockReturnValue(uri);
+    jest.spyOn(document, 'querySelector').mockReturnValue(baseElement);
+    fixture.detectChanges();
+    expect(service.handleAuthentication).toHaveBeenCalled();
+    expect(service.getFromUri).toHaveBeenCalled();
+    expect(document.querySelector).toHaveBeenCalledWith('base');
+    expect(window.location.replace).toHaveBeenCalledWith(baseHref + uri);
+  }));
+
   it('catches errors from handleAuthentication', async(() => {
     const error = new Error('test error');
     const fakePromise: unknown = {
